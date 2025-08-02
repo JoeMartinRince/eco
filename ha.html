@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GreenPath - Web Prototype</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>GreenPath Web Prototype</h1>
+        <p>Click "Start Trip" to begin tracking your journey.</p>
+        
+        <button id="toggleTracking">Start Trip</button>
+
+        <div id="trip-data" class="card" style="display: none;">
+            <h2>Trip Summary</h2>
+            <p><strong>Distance:</strong> <span id="distance">0</span> km</p>
+            <p><strong>Duration:</strong> <span id="duration">0</span> seconds</p>
+            <p><strong>Mode:</strong> <span id="mode">Not tracked</span></p>
+        </div>
+
+        <div id="smarter-choice" class="card" style="display: none;">
+            <h2>Your Smarter Choice</h2>
+            <p id="smarter-choice-text"></p>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
