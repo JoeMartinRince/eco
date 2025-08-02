@@ -1,31 +1,206 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GreenPath - Web Prototype</title>
-    <link rel="stylesheet" href="style.css">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>GreenPath – Eco Travel Mate</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --brand:#2E7D32;
+  --glass:rgba(255,255,255,.12);
+  --border:rgba(255,255,255,.2);
+  --radius:16px;
+  --shadow:0 8px 32px rgba(0,0,0,.25);
+}
+
+,::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html,body{min-height:100vh;font-family:Inter,system-ui;}
+body{
+  background:url('https://images.unsplash.com/photo-1441974231531-c6227db76b6e?auto=format&fit=crop&w=1400&q=80') center/cover no-repeat fixed;
+  color:#fff;
+}
+body::after{content:'';position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:-1;}
+
+header{position:sticky;top:0;z-index:100;padding:.75rem 5%;background:var(--glass);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);}
+nav{display:flex;justify-content:space-between;align-items:center;}
+.logo{font-size:1.5rem;font-weight:700;}
+nav ul{display:flex;gap:1.5rem;list-style:none;}
+nav a{color:#fff;text-decoration:none;font-weight:500;transition:.3s;}
+nav a:hover{color:#a3f7bf;}
+
+section{padding:4rem 5%;display:flex;flex-direction:column;align-items:center;gap:2rem;}
+h2{font-size:2.5rem;text-align:center;margin-bottom:.5rem;text-shadow:0 1px 2px #0009;}
+p{max-width:600px;text-align:center;color:#e5e7eb;text-shadow:0 1px 2px #0009;}
+
+.card{width:100%;max-width:800px;background:var(--glass);border:1px solid var(--border);border-radius:var(--radius);padding:2.5rem;backdrop-filter:blur(16px) saturate(180%);box-shadow:var(--shadow);color:#fff;}
+
+.form-group{margin-bottom:1.25rem;}
+label{display:block;margin-bottom:.5rem;font-weight:500;}
+input,select{width:100%;padding:.75rem;border:1px solid var(--border);border-radius:10px;background:rgba(255,255,255,.15);color:#fff;}
+.btn{background:#a3f7bf;color:#0f172a;border:none;padding:.75rem 1.5rem;border-radius:10px;font-weight:600;cursor:pointer;transition:.3s;}
+.btn:hover{transform:translateY(-2px);filter:brightness(1.1);}
+.result{margin-top:1rem;font-size:1.25rem;font-weight:600;}
+
+.chat-container{display:flex;flex-direction:column;height:400px;}
+.chat-box{flex:1;overflow-y:auto;border:1px solid var(--border);border-radius:12px;padding:1rem;background:rgba(255,255,255,.08);}
+.chat-message{margin:.25rem 0;padding:.6rem .9rem;border-radius:18px;max-width:75%;}
+.chat-message.user{background:#a3f7bf;color:#0f172a;align-self:flex-end;}
+.chat-message.bot{background:rgba(255,255,255,.15);align-self:flex-start;}
+.input-area{display:flex;gap:.5rem;margin-top:.5rem;}
+.input-area select,input{flex:1;}
+</style>
 </head>
 <body>
-    <div class="container">
-        <h1>GreenPath Web Prototype</h1>
-        <p>Click "Start Trip" to begin tracking your journey.</p>
-        
-        <button id="toggleTracking">Start Trip</button>
 
-        <div id="trip-data" class="card" style="display: none;">
-            <h2>Trip Summary</h2>
-            <p><strong>Distance:</strong> <span id="distance">0</span> km</p>
-            <p><strong>Duration:</strong> <span id="duration">0</span> seconds</p>
-            <p><strong>Mode:</strong> <span id="mode">Not tracked</span></p>
-        </div>
+<header>
+  <nav>
+    <div class="logo">GreenPath</div>
+    <ul>
+      <li><a href="#calc">Calculator</a></li>
+      <li><a href="#aqi">Air&nbsp;Quality</a></li>
+      <li><a href="#mapSec">Map</a></li>
+      <li><a href="#ai">Assistant</a></li>
+    </ul>
+  </nav>
+</header>
 
-        <div id="smarter-choice" class="card" style="display: none;">
-            <h2>Your Smarter Choice</h2>
-            <p id="smarter-choice-text"></p>
-        </div>
+<!-- Carbon Calculator -->
+<section id="calc">
+  <h2>Carbon Footprint Calculator</h2>
+  <div class="card">
+    <div class="form-group">
+      <label>Transport</label>
+      <select id="transport">
+        <option value="car">Car (medium)</option>
+        <option value="bus">Bus</option>
+        <option value="train">Train</option>
+        <option value="plane">Short-haul flight</option>
+      </select>
     </div>
+    <div class="form-group">
+      <label>Distance (km)</label>
+      <input id="distance" type="number" value="100" min="1">
+    </div>
+    <button class="btn" onclick="calcCO2()">Calculate</button>
+    <div class="result" id="co2-result"></div>
+  </div>
+</section>
 
-    <script src="script.js"></script>
+<!-- Live Air Quality -->
+<section id="aqi">
+  <h2>Live Air Quality</h2>
+  <div class="card">
+    <div id="aqi-result">Loading…</div>
+  </div>
+</section>
+
+<!-- Mapbox Map -->
+<section id="mapSec">
+  <h2>Interactive AQI Map</h2>
+  <div class="card">
+    <input id="mb-token" placeholder="Paste Mapbox public token">
+    <button class="btn" onclick="loadMap()">Load Map</button>
+    <div id="map" style="height:0;border-radius:12px;overflow:hidden;margin-top:1rem;"></div>
+  </div>
+</section>
+
+<!-- AI Assistant -->
+<section id="ai">
+  <h2>AI Travel Assistant</h2>
+  <div class="card chat-container">
+    <div class="chat-box" id="chat-box">
+      <div class="chat-message bot">Hi! Ask me anything about eco-travel.</div>
+    </div>
+    <div class="input-area">
+      <select id="chat-select" onchange="sendPreset(this.value)">
+        <option value="">Choose a question…</option>
+        <option value="when">When should I leave to avoid pollution?</option>
+        <option value="reduce">How can I reduce my CO₂?</option>
+        <option value="offset">How many trees offset my trip?</option>
+        <option value="transport">Which transport is greenest?</option>
+        <option value="aqi">Show me today’s air quality</option>
+        <option value="tips">Give me 3 eco-travel tips</option>
+      </select>
+      <input id="chat-input" placeholder="Or type freely…" onkeypress="if(event.key==='Enter')sendMsg()">
+      <button class="btn" onclick="sendMsg()">Send</button>
+    </div>
+  </div>
+</section>
+
+<!-- Mapbox GL JS -->
+<script src="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.js"></script>
+<link href="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.css" rel="stylesheet"/>
+
+<script>
+/* ---------- Carbon ---------- */
+const factors={car:0.17,bus:0.089,train:0.041,plane:0.255};
+function calcCO2(){
+  const mode=document.getElementById('transport').value;
+  const km=+document.getElementById('distance').value;
+  const co2=(factors[mode]*km).toFixed(2);
+  const trees=Math.ceil(co2/21);
+  document.getElementById('co2-result').textContent=${co2} kg CO₂ ≈ plant ${trees} tree${trees>1?'s':''}.;
+}
+
+/* ---------- Air Quality ---------- */
+function fetchAQI(lat,lon){
+  fetch(https://api.waqi.info/feed/geo:${lat};${lon}/?token=demo)
+    .then(r=>r.json())
+    .then(d=>{document.getElementById('aqi-result').innerHTML=<strong>AQI: ${d.data.aqi}</strong> – ${d.data.city.name};})
+    .catch(()=>document.getElementById('aqi-result').textContent='Could not load AQI');
+}
+navigator.geolocation?.getCurrentPosition(
+  p=>fetchAQI(p.coords.latitude,p.coords.longitude),
+  ()=>document.getElementById('aqi-result').textContent='Location denied'
+);
+
+/* ---------- Mapbox ---------- */
+function loadMap(){
+  const token=document.getElementById('mb-token').value.trim();
+  if(!token){alert('Token required');return;}
+  mapboxgl.accessToken=token;
+  const mapDiv=document.getElementById('map');
+  mapDiv.style.height='400px';
+  new mapboxgl.Map({container:'map',style:'mapbox://styles/mapbox/streets-v11',center:[0,0],zoom:2});
+}
+
+/* ---------- AI Chat ---------- */
+const presetAnswers={
+  when:"Early mornings (6-8 AM) and late evenings (after 7 PM) usually have the cleanest air and lightest traffic.",
+  reduce:"Take public transport, share rides, fly economy on direct flights, and offset via verified tree-planting projects.",
+  offset:"One mature tree absorbs ≈ 21 kg CO₂/year. Divide your trip’s CO₂ by 21 to know how many trees to plant.",
+  transport:"For the same distance: Train < Bus < Car < Plane. Choose rail or bus when possible.",
+  aqi:"Your current AQI is shown above. If it’s above 100, limit outdoor exercise and wear a mask.",
+  tips:"1) Pack light (weight = fuel), 2) Reuse water bottles, 3) Pick eco-certified hotels."
+};
+
+function sendPreset(val){
+  if(!val) return;
+  addMessage(document.querySelector(#chat-select option[value="${val}"]).text,'user');
+  addMessage(presetAnswers[val],'bot');
+}
+
+function sendMsg(){
+  const input=document.getElementById('chat-input');
+  const text=input.value.trim();
+  if(!text) return;
+  addMessage(text,'user');
+  input.value='';
+  const reply=presetAnswers[text.toLowerCase()] || 
+              "I’m a simple assistant – choose a question from the menu or type keywords like 'tips', 'reduce', etc.";
+  setTimeout(()=>addMessage(reply,'bot'),400);
+}
+
+function addMessage(text,sender){
+  const box=document.getElementById('chat-box');
+  box.insertAdjacentHTML('beforeend',<div class="chat-message ${sender}">${text}</div>);
+  box.scrollTop=box.scrollHeight;
+    <link rel="stylesheet" href="style.css">
+...
+<script src="script.js" defer></script>
+
+}
+</script>
 </body>
 </html>
